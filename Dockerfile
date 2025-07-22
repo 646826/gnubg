@@ -40,7 +40,7 @@ COPY . .
 RUN make clean || true && make distclean || true
 
 # Generate configure script
-RUN ./autogen.sh || true
+RUN ./autogen.sh
 
 # Configure the build (without Python to avoid version issues)
 RUN ./configure --without-python
