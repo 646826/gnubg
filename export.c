@@ -1303,3 +1303,101 @@ CommandExportMatchSnowieTxt(char *sz)
 {
     ExportMatchMat(sz, TRUE);
 }
+
+extern void
+CommandExportGameImages(char *sz)
+{
+    char *szMat, *szDir;
+    char szImagePath[PATH_MAX];
+    char szJpgPath[PATH_MAX];
+    char szConvertCmd[PATH_MAX * 3];
+    listOLD *pl;
+    moverecord *pmr;
+    matchstate msExport;
+    int iMove = 0;
+    FILE *pf;
+    
+    if (!sz || !*sz) {
+        outputl(_("You must specify a .mat file and output directory."));
+        outputl(_("Usage: export gameimages <matfile> <directory>"));
+        return;
+    }
+    
+    szMat = NextToken(&sz);
+    szDir = NextToken(&sz);
+    
+    if (!szMat || !szDir) {
+        outputl(_("You must specify both .mat file and output directory."));
+        return;
+    }
+    
+    if (system("which convert > /dev/null 2>&1") != 0) {
+        outputl(_("Error: ImageMagick 'convert' command not found. Please install ImageMagick."));
+        return;
+    }
+    
+    pf = g_fopen(szMat, "rb");
+    if (!pf) {
+        outputerrf(_("Error: Cannot open .mat file '%s'. Please check the file exists and is readable."), szMat);
+        return;
+    }
+    fclose(pf);
+    
+    if (g_mkdir_with_parents(szDir, 0755) != 0) {
+        outputerrf(_("Error: Cannot create output directory '%s'. Please check permissions."), szDir);
+        return;
+    }
+    
+    if (g_access(szDir, W_OK) != 0) {
+        outputerrf(_("Error: Cannot write to output directory '%s'. Please check permissions."), szDir);
+        return;
+    }
+    
+    CommandImportMat(szMat);
+    
+    if (!plGame || ListEmpty(plGame)) {
+        outputl(_("Error: No valid game data found after importing .mat file. The file may be corrupted or empty."));
+        return;
+    }
+    
+    msExport = ms;
+    InitBoard(msExport.anBoard, ms.bgv);
+    
+    sprintf(szImagePath, "%s/position_%03d.png", szDir, iMove);
+    sprintf(szJpgPath, "%s/position_%03d.jpg", szDir, iMove);
+    CommandExportPositionPNG(szImagePath);
+    
+    sprintf(szConvertCmd, "convert \"%s\" \"%s\"", szImagePath, szJpgPath);
+    if (system(szConvertCmd) == 0) {
+        g_unlink(szImagePath);
+    } else {
+        outputerrf(_("Warning: Failed to convert PNG to JPG for position %d"), iMove);
+    }
+    iMove++;
+    
+    for (pl = plGame->plNext; pl != plGame; pl = pl->plNext) {
+        pmr = pl->p;
+        
+        if (!pmr) {
+            outputerrf(_("Warning: Invalid move record at position %d, skipping"), iMove);
+            continue;
+        }
+        
+        ApplyMoveRecord(&msExport, plGame, pmr);
+        
+        sprintf(szImagePath, "%s/position_%03d.png", szDir, iMove);
+        sprintf(szJpgPath, "%s/position_%03d.jpg", szDir, iMove);
+        CommandExportPositionPNG(szImagePath);
+        
+        sprintf(szConvertCmd, "convert \"%s\" \"%s\"", szImagePath, szJpgPath);
+        if (system(szConvertCmd) == 0) {
+            g_unlink(szImagePath);
+        } else {
+            outputerrf(_("Warning: Failed to convert PNG to JPG for position %d"), iMove);
+        }
+        
+        iMove++;
+    }
+    
+    outputf(_("Successfully exported %d game position images to %s\n"), iMove, szDir);
+}

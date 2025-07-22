@@ -254,6 +254,8 @@ command cER = {
       acExportGame },
     { "htmlimages", CommandExportHTMLImages, N_("Generate images to be used "
       "by the HTML export commands"), szFILENAME, &cFilename },
+    { "gameimages", CommandExportGameImages, N_("Export JPG images for each "
+      "step of a game from .mat file"), szFILENAME, &cFilename },
     { "match", NULL, N_("Record a log of the match so far to a file"), NULL,
       acExportMatch },
     { "position", NULL, N_("Write the current position to a file"), NULL,

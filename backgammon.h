@@ -593,6 +593,7 @@ extern void CommandExportGamePDF(char *);
 extern void CommandExportGamePS(char *);
 extern void CommandExportGameText(char *);
 extern void CommandExportHTMLImages(char *);
+extern void CommandExportGameImages(char *);
 extern void CommandExportMatchHtml(char *);
 extern void CommandExportMatchLaTeX(char *);
 extern void CommandExportMatchMat(char *);
