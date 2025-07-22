@@ -4063,7 +4063,7 @@ EvalEfficiency(const TanBoard anBoard, positionclass pc)
 
         /* FIXME: should CLASS_CRASHED be handled differently? */
 
-        /* FIXME: use Øystein's values published in rec.games.backgammon,
+        /* FIXME: use ï¿½ystein's values published in rec.games.backgammon,
          * or work some other semiempirical values */
 
         /* FIXME: very important: use opponents inputs as well */
@@ -5270,7 +5270,7 @@ extern evalCache cpEval;
 extern classevalfunc acef[N_CLASSES];
 extern unsigned int cCache;
 extern evalcontext ecBasic;
-NNState nnStatesStorage[MAX_NUMTHREADS][3];
+extern NNState nnStatesStorage[MAX_NUMTHREADS][3];
 #endif
 
 static int GeneralEvaluationEPlied(NNState * nnStates, float arOutput[NUM_ROLLOUT_OUTPUTS],
