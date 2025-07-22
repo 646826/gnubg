@@ -36,11 +36,16 @@ WORKDIR /app
 # Copy source code
 COPY . .
 
-# Clean any existing build artifacts
-RUN make clean || true && make distclean || true
+# Clean any existing build artifacts and autotools cache
+RUN make clean || true && make distclean || true && \
+    rm -rf autom4te.cache aclocal.m4 configure Makefile.in && \
+    find . -name "Makefile.in" -delete
 
-# Generate configure script
-RUN ./autogen.sh
+# Remove problematic m4 files that cause conflicts
+RUN rm -f m4/glib-gettext.m4 config.rpath
+
+# Generate configure script with proper autotools sequence
+RUN autoreconf -fiv
 
 # Configure the build (without Python to avoid version issues)
 RUN ./configure --without-python
